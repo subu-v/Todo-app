@@ -1,0 +1,50 @@
+*,
+::before,
+::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: inherit;
+}
+
+html {
+  font-size: 62.5%;
+
+  &:has(.dark-theme) > body {
+    background-image: url("../../images/bg-desktop-dark.jpg");
+    background-size: cover;
+    background-repeat: no-repeat;
+  }
+}
+
+:root {
+  --clr-bright-blue: hsl(220, 98%, 61%);
+  --clr-bg-body: hsl(236, 33%, 92%);
+  --clr-bg-todo: hsl(0, 0%, 98%);
+  --clr-checkbox-border: hsl(236, 33%, 92%);
+  --clr-text: hsl(235, 19%, 35%);
+  --clr-text-pri-heading: hsl(0, 0%, 98%);
+  --clr-text-status: hsl(236, 9%, 61%);
+  --clr-text-footer: hsl(233, 11%, 84%);
+  --clr-text-hover: hsl(235, 19%, 35%);
+  --clr-border-bottom: hsl(233, 11%, 84%);
+}
+.dark-theme {
+  --clr-bright-blue: hsl(220, 98%, 61%);
+  --clr-bg-body: hsl(235, 21%, 11%);
+  --clr-bg-todo: hsl(235, 24%, 19%);
+  --clr-checkbox-border: hsl(237, 14%, 26%);
+  --clr-text: hsl(234, 39%, 85%);
+  --clr-text-pri-heading: hsl(0, 0%, 98%);
+  --clr-text-status: hsl(234, 11%, 52%);
+  --clr-text-footer: hsl(233, 14%, 35%);
+  --clr-text-hover: hsl(236, 33%, 92%);
+  --clr-border-bottom: hsl(237, 14%, 26%);
+}
+body {
+  box-sizing: border-box;
+  background-image: url("../../images/bg-desktop-light.jpg");
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-color: var(--clr-bg-body);
+  font-family: "Josefin Sans", sans-serif;
+}

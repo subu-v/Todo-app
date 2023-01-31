@@ -1,0 +1,210 @@
+@use "base" as *;
+@use "abstracts" as *;
+
+.todo {
+  width: 75rem;
+  margin: 0 auto;
+  padding: 8rem 6.4rem;
+  position: relative;
+
+  &-header {
+    & > div:first-child {
+      @include flex(row, space-between, center, 0);
+      margin: 0 0 4.8rem 0;
+    }
+  }
+
+  &-pri-heading {
+    color: var(--clr-text-pri-heading);
+    font-size: 4.8rem;
+    letter-spacing: 20px;
+    text-transform: uppercase;
+  }
+
+  &-theme-switcher {
+    & > img:last-child {
+      display: none;
+    }
+    @include flex(row, initial, center, 0);
+  }
+
+  &-theme-img {
+    width: 100%;
+    height: 100%;
+  }
+
+  &-input-box {
+    position: relative;
+
+    &::after {
+      content: "";
+      border: 2px solid var(--clr-checkbox-border);
+      border-radius: 50%;
+      background-color: var(--clr-bg-todo);
+      width: 2.8rem;
+      height: 2.8rem;
+
+      position: absolute;
+      top: 24px;
+      left: 32px;
+    }
+  }
+  &-input {
+    border: none;
+    border-radius: 5px;
+    width: 100%;
+    padding: 2.8rem 2.8rem 2.8rem 8rem;
+    background-color: var(--clr-bg-todo);
+    font-family: inherit;
+    font-size: 2.2rem;
+    color: var(--clr-text);
+    caret-color: var(--clr-bright-blue);
+
+    &:focus {
+      outline: none;
+    }
+
+    &::placeholder {
+      font-size: 2.2rem;
+      color: var(--clr-text-status);
+    }
+  }
+
+  &-new-container {
+    position: absolute;
+    width: 622px;
+    translate: 0 36px;
+  }
+
+  &-status-box {
+    @include flex(row, space-between, center, 0);
+    background-color: var(--clr-bg-todo);
+    border-bottom-left-radius: 5px;
+    border-bottom-right-radius: 5px;
+    padding: 2.4rem;
+    width: 100%;
+  }
+
+  &-items-left,
+  &-toggle,
+  &-clear-completed {
+    color: var(--clr-text-status);
+    color: hsl(234, 11%, 52%);
+    font-size: 1.6rem;
+  }
+
+  &-toggle,
+  &-clear-completed {
+    border: none;
+    background-color: transparent;
+    font-family: inherit;
+    cursor: pointer;
+    transition: color 0.2s ease;
+
+    &:hover {
+      color: var(--clr-text-hover) !important;
+    }
+  }
+
+  &-toggle {
+    font-weight: 700;
+    &:not(:last-child) {
+      margin-right: 1.8rem;
+    }
+  }
+
+  &-show-all {
+    color: var(--clr-bright-blue);
+  }
+
+  &-footer-txt {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--clr-text-footer);
+
+    position: absolute;
+    bottom: -175%;
+    left: 50%;
+    translate: -50%;
+  }
+
+  &-new {
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+    border-bottom: 1px solid var(--clr-border-bottom);
+    background-color: var(--clr-bg-todo);
+
+    cursor: pointer;
+    width: 100%;
+    padding: 2.6rem 2.6rem 2.6rem 8rem;
+    position: relative;
+    transition: all 0.25s ease;
+    @include flex(row, initial, center, 0);
+
+    &:hover &--img {
+      opacity: 1;
+    }
+    &--check {
+      background: var(--clr-checkbox-border);
+      border-radius: 50%;
+      width: 28px;
+      height: 28px;
+      padding: 10px;
+
+      position: absolute;
+      top: 24px;
+      left: 32px;
+
+      transition: all 0.3s ease;
+
+      &:hover {
+        background: -webkit-linear-gradient(left top, #57ddff 0%, #c058f3 100%);
+      }
+
+      & > div {
+        background: var(--clr-bg-todo);
+        border-radius: 50%;
+        width: 24px;
+        height: 24px;
+
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        translate: -50% -50%;
+      }
+    }
+
+    &--check-img {
+      background-image: url("../../images/icon-check.svg");
+      background-repeat: no-repeat;
+
+      display: none;
+
+      width: 24px;
+      height: 24px;
+      position: absolute;
+      top: 34px;
+      left: 41px;
+    }
+
+    &--text {
+      font-family: inherit;
+      font-size: 2.2rem;
+      color: var(--clr-text);
+    }
+
+    &--img {
+      background-image: url("../../images/icon-cross.svg");
+      background-repeat: no-repeat;
+
+      opacity: 0;
+
+      width: 24px;
+      height: 24px;
+
+      position: absolute;
+      right: 22px;
+      bottom: 20px;
+    }
+  }
+}

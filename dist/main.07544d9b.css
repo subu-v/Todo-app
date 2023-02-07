@@ -19,6 +19,7 @@ html:has(.dark-theme) > body {
   --clr-bright-blue: hsl(220, 98%, 61%);
   --clr-bg-body: hsl(236, 33%, 92%);
   --clr-bg-todo: hsl(0, 0%, 98%);
+  --clr-bg-todo-over: hsl(0, 0%, 88%);
   --clr-checkbox-border: hsl(236, 33%, 92%);
   --clr-text: hsl(235, 19%, 35%);
   --clr-text-pri-heading: hsl(0, 0%, 98%);
@@ -32,6 +33,7 @@ html:has(.dark-theme) > body {
   --clr-bright-blue: hsl(220, 98%, 61%);
   --clr-bg-body: hsl(235, 21%, 11%);
   --clr-bg-todo: hsl(235, 24%, 19%);
+  --clr-bg-todo-over: #1e1f30;
   --clr-checkbox-border: hsl(237, 14%, 26%);
   --clr-text: hsl(234, 39%, 85%);
   --clr-text-pri-heading: hsl(0, 0%, 98%);
@@ -180,6 +182,9 @@ body {
 }
 .todo-new:hover .todo-new--img {
   opacity: 1;
+}
+.todo-new--over {
+  background-color: var(--clr-bg-todo-over);
 }
 .todo-new--check {
   background: var(--clr-checkbox-border);

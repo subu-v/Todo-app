@@ -118,6 +118,8 @@ parcelRequire = (function (modules, cache, entry, globalName) {
 
   return newRequire;
 })({"script.js":[function(require,module,exports) {
+"use strict";
+
 var themeDarkImg = document.querySelector(".todo-theme-dark");
 var themeLightImg = document.querySelector(".todo-theme-light");
 var todoInput = document.querySelector(".todo-input");
@@ -136,6 +138,9 @@ var completedToDos = new Set();
 
 // DRAG AND DROP VARIABLES
 var newToDos;
+var arrToDos = [];
+var fromToDoIndex;
+var toToDoIndex;
 
 // Theme Handlers
 themeDarkImg.addEventListener("click", function (e) {
@@ -151,14 +156,66 @@ themeLightImg.addEventListener("click", function (e) {
 
 //ToDo
 var createTodo = function createTodo(event) {
-  var newTodo = "<div class=\"todo-new\" draggable=\"true\">\n                    <div class=\"todo-new--check\">\n                      <div></div>\n                    </div>\n                    <span class=\"todo-new--check-img\" ></span>\n                    <p class=\"todo-new--text\">".concat(event.target.value, "</p>\n                    <span class=\"todo-new--img\"\n                  </div>");
+  var newTodo = "<div class=\"todo-new\" draggable=\"true\">\n                    <div class=\"todo-new--check\">\n                      <div></div>\n                    </div>\n                    <span class=\"todo-new--check-img\"></span>\n                    <p class=\"todo-new--text\">".concat(event.target.value, "</p>\n                    <span class=\"todo-new--img\"\n                  </div>");
   todoNewContainer.insertAdjacentHTML("afterbegin", newTodo);
   checkImgs = document.querySelectorAll(".todo-new--check-img");
   newToDos = document.querySelectorAll(".todo-new");
+  arrToDos.push(todoNewContainer.firstChild);
   allToDos.push(todoNewContainer.firstChild);
   activeToDos.push(todoNewContainer.firstChild);
   todoItemsLeft.textContent = "".concat(activeToDos.length, " items left");
   dragAndDrop();
+};
+var dragStart = function dragStart() {
+  var _this = this;
+  arrToDos.forEach(function (ele, index) {
+    if (_this === ele) {
+      fromToDoIndex = index;
+    }
+  });
+};
+var dragEnter = function dragEnter() {
+  this.classList.add("todo-new--over");
+};
+var dragLeave = function dragLeave() {
+  this.classList.remove("todo-new--over");
+};
+var dragDrop = function dragDrop() {
+  var _this2 = this;
+  arrToDos.forEach(function (ele, index) {
+    if (_this2 === ele) {
+      toToDoIndex = index;
+    }
+  });
+  swapItems(fromToDoIndex, toToDoIndex);
+  this.classList.remove("todo-new--over");
+};
+var swapItems = function swapItems(from, to) {
+  var fromToDo = arrToDos[from];
+  var toToDo = arrToDos[to];
+  arrToDos[from] = toToDo;
+  arrToDos[to] = fromToDo;
+  reordering();
+};
+var reordering = function reordering() {
+  newToDos.forEach(function (ele) {
+    ele.remove();
+  });
+  arrToDos.forEach(function (ele) {
+    todoNewContainer.insertAdjacentElement("afterbegin", ele);
+  });
+};
+var dragOver = function dragOver(event) {
+  event.preventDefault();
+};
+var dragAndDrop = function dragAndDrop() {
+  newToDos.forEach(function (ele) {
+    ele.addEventListener("dragstart", dragStart);
+    ele.addEventListener("dragover", dragOver);
+    ele.addEventListener("drop", dragDrop);
+    ele.addEventListener("dragenter", dragEnter);
+    ele.addEventListener("dragleave", dragLeave);
+  });
 };
 var removeTodo = function removeTodo() {
   var cancelTodoArray = document.querySelectorAll(".todo-new--img");
@@ -258,32 +315,6 @@ clearCompletedToDos.addEventListener("click", function (e) {
     ele.remove();
   });
 });
-
-// DRAG AND DROP FUNCTIONALITY
-var dragStart = function dragStart() {
-  console.log("Event: dragStart");
-};
-var dragEnter = function dragEnter() {
-  console.log("Event: dragEnter");
-};
-var dragLeave = function dragLeave() {
-  console.log("Event: dragLeave");
-};
-var dragOver = function dragOver() {
-  console.log("Event: dragOver");
-};
-var dragDrop = function dragDrop() {
-  console.log("Event: dragDrop");
-};
-var dragAndDrop = function dragAndDrop() {
-  newToDos.forEach(function (item) {
-    item.addEventListener("dragstart", dragStart);
-    item.addEventListener("dragenter", dragEnter);
-    item.addEventListener("dragleave", dragLeave);
-    item.addEventListener("dragover", dragOver);
-    item.addEventListener("drop", dragDrop);
-  });
-};
 },{}],"../node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
@@ -309,7 +340,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "61337" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "57376" + '/');
   ws.onmessage = function (event) {
     checkedAssets = {};
     assetsToAccept = [];

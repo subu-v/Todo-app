@@ -1,3 +1,5 @@
+"use strict";
+
 const themeDarkImg = document.querySelector(".todo-theme-dark");
 const themeLightImg = document.querySelector(".todo-theme-light");
 const todoInput = document.querySelector(".todo-input");
@@ -17,6 +19,9 @@ let completedToDos = new Set();
 
 // DRAG AND DROP VARIABLES
 let newToDos;
+let arrToDos = [];
+let fromToDoIndex;
+let toToDoIndex;
 
 // Theme Handlers
 themeDarkImg.addEventListener("click", (e) => {
@@ -37,7 +42,7 @@ const createTodo = (event) => {
                     <div class="todo-new--check">
                       <div></div>
                     </div>
-                    <span class="todo-new--check-img" ></span>
+                    <span class="todo-new--check-img"></span>
                     <p class="todo-new--text">${event.target.value}</p>
                     <span class="todo-new--img"
                   </div>`;
@@ -45,11 +50,72 @@ const createTodo = (event) => {
   checkImgs = document.querySelectorAll(".todo-new--check-img");
   newToDos = document.querySelectorAll(".todo-new");
 
+  arrToDos.push(todoNewContainer.firstChild);
   allToDos.push(todoNewContainer.firstChild);
   activeToDos.push(todoNewContainer.firstChild);
 
   todoItemsLeft.textContent = `${activeToDos.length} items left`;
   dragAndDrop();
+};
+
+const dragStart = function () {
+  arrToDos.forEach((ele, index) => {
+    if (this === ele) {
+      fromToDoIndex = index;
+    }
+  });
+};
+
+const dragEnter = function () {
+  this.classList.add("todo-new--over");
+};
+
+const dragLeave = function () {
+  this.classList.remove("todo-new--over");
+};
+
+const dragDrop = function () {
+  arrToDos.forEach((ele, index) => {
+    if (this === ele) {
+      toToDoIndex = index;
+    }
+  });
+
+  swapItems(fromToDoIndex, toToDoIndex);
+  this.classList.remove("todo-new--over");
+};
+
+const swapItems = function (from, to) {
+  const fromToDo = arrToDos[from];
+  const toToDo = arrToDos[to];
+
+  arrToDos[from] = toToDo;
+  arrToDos[to] = fromToDo;
+
+  reordering();
+};
+
+const reordering = function () {
+  newToDos.forEach((ele) => {
+    ele.remove();
+  });
+  arrToDos.forEach((ele) => {
+    todoNewContainer.insertAdjacentElement("afterbegin", ele);
+  });
+};
+
+const dragOver = function (event) {
+  event.preventDefault();
+};
+
+const dragAndDrop = function () {
+  newToDos.forEach((ele) => {
+    ele.addEventListener("dragstart", dragStart);
+    ele.addEventListener("dragover", dragOver);
+    ele.addEventListener("drop", dragDrop);
+    ele.addEventListener("dragenter", dragEnter);
+    ele.addEventListener("dragleave", dragLeave);
+  });
 };
 
 const removeTodo = () => {

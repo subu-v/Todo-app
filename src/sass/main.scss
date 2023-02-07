@@ -144,6 +144,11 @@
     &:hover &--img {
       opacity: 1;
     }
+
+    &--over {
+      background-color: var(--clr-bg-todo-over);
+    }
+
     &--check {
       background: var(--clr-checkbox-border);
       border-radius: 50%;

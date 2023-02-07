@@ -197,32 +197,32 @@ clearCompletedToDos.addEventListener("click", (e) => {
 });
 
 // DRAG AND DROP FUNCTIONALITY
-const dragStart = () => {
-  console.log(`Event: dragStart`);
-};
+// const dragStart = () => {
+//   console.log(`Event: dragStart`);
+// };
 
-const dragEnter = () => {
-  console.log("Event: dragEnter");
-};
+// const dragEnter = () => {
+//   console.log("Event: dragEnter");
+// };
 
-const dragLeave = () => {
-  console.log("Event: dragLeave");
-};
+// const dragLeave = () => {
+//   console.log("Event: dragLeave");
+// };
 
-const dragOver = () => {
-  console.log("Event: dragOver");
-};
+// const dragOver = () => {
+//   console.log("Event: dragOver");
+// };
 
-const dragDrop = () => {
-  console.log("Event: dragDrop");
-};
+// const dragDrop = () => {
+//   console.log("Event: dragDrop");
+// };
 
-const dragAndDrop = () => {
-  newToDos.forEach((item) => {
-    item.addEventListener("dragstart", dragStart);
-    item.addEventListener("dragenter", dragEnter);
-    item.addEventListener("dragleave", dragLeave);
-    item.addEventListener("dragover", dragOver);
-    item.addEventListener("drop", dragDrop);
-  });
-};
+// const dragAndDrop = () => {
+//   newToDos.forEach((item) => {
+//     item.addEventListener("dragstart", dragStart);
+//     item.addEventListener("dragenter", dragEnter);
+//     item.addEventListener("dragleave", dragLeave);
+//     item.addEventListener("dragover", dragOver);
+//     item.addEventListener("drop", dragDrop);
+//   });
+// };

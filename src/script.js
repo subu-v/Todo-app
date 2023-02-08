@@ -18,10 +18,7 @@ let currentToDo;
 let allToDos = [];
 let activeToDos = [];
 let completedToDos = [];
-
-// DRAG AND DROP VARIABLES
 let newToDos;
-let arrToDos = [];
 let fromToDoIndex;
 let toToDoIndex;
 
@@ -69,7 +66,7 @@ const createTodo = (event) => {
   todoItemsLeft.textContent = `${activeToDos.length} items left`;
 
   // FOR DRAG AND DROP
-  arrToDos.push(todoNewContainer.firstChild);
+  // .push(todoNewContainer.firstChild);
   dragAndDrop();
 };
 
@@ -245,19 +242,21 @@ showCompletedToDos.addEventListener("click", (e) => {
 });
 
 clearCompletedToDos.addEventListener("click", (e) => {
+  console.log(allToDos);
   completedToDos.forEach((ele) => {
     ele.remove();
-    arrToDos.forEach((todo, index) => {
+    allToDos.forEach((todo, index) => {
       if (todo === ele) {
-        arrToDos.splice(index, 1);
+        allToDos.splice(index, 1);
       }
     });
   });
+  console.log(allToDos);
 });
 
 // DRAG AND DROP FUNCTIONALITY
 const dragStart = function () {
-  arrToDos.forEach((ele, index) => {
+  allToDos.forEach((ele, index) => {
     if (this === ele) {
       fromToDoIndex = index;
     }
@@ -273,7 +272,7 @@ const dragLeave = function () {
 };
 
 const dragDrop = function () {
-  arrToDos.forEach((ele, index) => {
+  allToDos.forEach((ele, index) => {
     if (this === ele) {
       toToDoIndex = index;
     }
@@ -284,11 +283,11 @@ const dragDrop = function () {
 };
 
 const swapItems = function (from, to) {
-  const fromToDo = arrToDos[from];
-  const toToDo = arrToDos[to];
+  const fromToDo = allToDos[from];
+  const toToDo = allToDos[to];
 
-  arrToDos[from] = toToDo;
-  arrToDos[to] = fromToDo;
+  allToDos[from] = toToDo;
+  allToDos[to] = fromToDo;
 
   reordering();
 };
@@ -297,7 +296,7 @@ const reordering = function () {
   newToDos.forEach((ele) => {
     ele.remove();
   });
-  arrToDos.forEach((ele) => {
+  allToDos.forEach((ele) => {
     todoNewContainer.insertAdjacentElement("afterbegin", ele);
   });
   editToDoBorderRadius(newToDos);
@@ -316,3 +315,5 @@ const dragAndDrop = function () {
     ele.addEventListener("dragleave", dragLeave);
   });
 };
+
+// USING LOCALSTORAGE API TO STORE THE TODO'S

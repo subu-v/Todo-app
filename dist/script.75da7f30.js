@@ -137,10 +137,7 @@ var currentToDo;
 var allToDos = [];
 var activeToDos = [];
 var completedToDos = [];
-
-// DRAG AND DROP VARIABLES
 var newToDos;
-var arrToDos = [];
 var fromToDoIndex;
 var toToDoIndex;
 
@@ -177,7 +174,7 @@ var createTodo = function createTodo(event) {
   todoItemsLeft.textContent = "".concat(activeToDos.length, " items left");
 
   // FOR DRAG AND DROP
-  arrToDos.push(todoNewContainer.firstChild);
+  // .push(todoNewContainer.firstChild);
   dragAndDrop();
 };
 var removeTodo = function removeTodo() {
@@ -312,20 +309,22 @@ showCompletedToDos.addEventListener("click", function (e) {
   });
 });
 clearCompletedToDos.addEventListener("click", function (e) {
+  console.log(allToDos);
   completedToDos.forEach(function (ele) {
     ele.remove();
-    arrToDos.forEach(function (todo, index) {
+    allToDos.forEach(function (todo, index) {
       if (todo === ele) {
-        arrToDos.splice(index, 1);
+        allToDos.splice(index, 1);
       }
     });
   });
+  console.log(allToDos);
 });
 
 // DRAG AND DROP FUNCTIONALITY
 var dragStart = function dragStart() {
   var _this = this;
-  arrToDos.forEach(function (ele, index) {
+  allToDos.forEach(function (ele, index) {
     if (_this === ele) {
       fromToDoIndex = index;
     }
@@ -339,7 +338,7 @@ var dragLeave = function dragLeave() {
 };
 var dragDrop = function dragDrop() {
   var _this2 = this;
-  arrToDos.forEach(function (ele, index) {
+  allToDos.forEach(function (ele, index) {
     if (_this2 === ele) {
       toToDoIndex = index;
     }
@@ -348,17 +347,17 @@ var dragDrop = function dragDrop() {
   this.classList.remove("todo-new--over");
 };
 var swapItems = function swapItems(from, to) {
-  var fromToDo = arrToDos[from];
-  var toToDo = arrToDos[to];
-  arrToDos[from] = toToDo;
-  arrToDos[to] = fromToDo;
+  var fromToDo = allToDos[from];
+  var toToDo = allToDos[to];
+  allToDos[from] = toToDo;
+  allToDos[to] = fromToDo;
   reordering();
 };
 var reordering = function reordering() {
   newToDos.forEach(function (ele) {
     ele.remove();
   });
-  arrToDos.forEach(function (ele) {
+  allToDos.forEach(function (ele) {
     todoNewContainer.insertAdjacentElement("afterbegin", ele);
   });
   editToDoBorderRadius(newToDos);
@@ -375,6 +374,8 @@ var dragAndDrop = function dragAndDrop() {
     ele.addEventListener("dragleave", dragLeave);
   });
 };
+
+// USING LOCALSTORAGE API TO STORE THE TODO'S
 },{}],"../node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
@@ -400,7 +401,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "58980" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "62750" + '/');
   ws.onmessage = function (event) {
     checkedAssets = {};
     assetsToAccept = [];

@@ -11,11 +11,13 @@ const showCompletedToDos = document.querySelector(".todo-show-completed");
 const clearCompletedToDos = document.querySelector(".todo-clear-completed");
 
 let num = 0;
+let currentLength = 0;
 let doneToDos;
 let checkImgs;
+let currentToDo;
 let allToDos = [];
 let activeToDos = [];
-let completedToDos = new Set();
+let completedToDos = [];
 
 // DRAG AND DROP VARIABLES
 let newToDos;
@@ -36,7 +38,18 @@ themeLightImg.addEventListener("click", (e) => {
   document.body.classList.remove("dark-theme");
 });
 
-//ToDo
+// APP TODO FUNCTIONALITY
+todoInput.addEventListener("keydown", (e) => {
+  if (e.key === "Enter" && e.currentTarget.value.trim() === "") return;
+  else if (e.key === "Enter") {
+    createTodo(e);
+    removeTodo();
+    completeToDo();
+    undoCompletedToDo();
+    e.target.value = "";
+  }
+});
+
 const createTodo = (event) => {
   const newTodo = `<div class="todo-new" draggable="true">
                     <div class="todo-new--check">
@@ -50,72 +63,14 @@ const createTodo = (event) => {
   checkImgs = document.querySelectorAll(".todo-new--check-img");
   newToDos = document.querySelectorAll(".todo-new");
 
-  arrToDos.push(todoNewContainer.firstChild);
   allToDos.push(todoNewContainer.firstChild);
   activeToDos.push(todoNewContainer.firstChild);
-
+  editToDoBorderRadius(newToDos);
   todoItemsLeft.textContent = `${activeToDos.length} items left`;
+
+  // FOR DRAG AND DROP
+  arrToDos.push(todoNewContainer.firstChild);
   dragAndDrop();
-};
-
-const dragStart = function () {
-  arrToDos.forEach((ele, index) => {
-    if (this === ele) {
-      fromToDoIndex = index;
-    }
-  });
-};
-
-const dragEnter = function () {
-  this.classList.add("todo-new--over");
-};
-
-const dragLeave = function () {
-  this.classList.remove("todo-new--over");
-};
-
-const dragDrop = function () {
-  arrToDos.forEach((ele, index) => {
-    if (this === ele) {
-      toToDoIndex = index;
-    }
-  });
-
-  swapItems(fromToDoIndex, toToDoIndex);
-  this.classList.remove("todo-new--over");
-};
-
-const swapItems = function (from, to) {
-  const fromToDo = arrToDos[from];
-  const toToDo = arrToDos[to];
-
-  arrToDos[from] = toToDo;
-  arrToDos[to] = fromToDo;
-
-  reordering();
-};
-
-const reordering = function () {
-  newToDos.forEach((ele) => {
-    ele.remove();
-  });
-  arrToDos.forEach((ele) => {
-    todoNewContainer.insertAdjacentElement("afterbegin", ele);
-  });
-};
-
-const dragOver = function (event) {
-  event.preventDefault();
-};
-
-const dragAndDrop = function () {
-  newToDos.forEach((ele) => {
-    ele.addEventListener("dragstart", dragStart);
-    ele.addEventListener("dragover", dragOver);
-    ele.addEventListener("drop", dragDrop);
-    ele.addEventListener("dragenter", dragEnter);
-    ele.addEventListener("dragleave", dragLeave);
-  });
 };
 
 const removeTodo = () => {
@@ -134,29 +89,44 @@ const removeTodo = () => {
           todoItemsLeft.textContent = `${activeToDos.length} items left`;
         }
       });
+      arrToDos.forEach((todo, index) => {
+        if (todo === e.currentTarget.closest(".todo-new")) {
+          arrToDos.splice(index, 1);
+        }
+      });
     });
   });
 };
 
 const completeToDo = () => {
   doneToDos = document.querySelectorAll(".todo-new--check");
-  doneToDos.forEach((ele) => {
-    ele.addEventListener("click", (e) => {
-      const todoTextEle = ele.nextElementSibling.nextElementSibling;
+  doneToDos.forEach((checkBox) => {
+    checkBox.addEventListener("click", (e) => {
+      // The reason im selecting checkbox Element nextElementSiblings nextElement is because of
+      // wanting to style the <p> element of the todo
+      const todoTextEle = checkBox.nextElementSibling.nextElementSibling;
       todoTextEle.style.textDecoration = "line-through";
-
       todoTextEle.style.color = getComputedStyle(
         document.body
       ).getPropertyValue("--clr-text-footer");
 
-      ele.querySelector("div").style.background =
+      checkBox.querySelector("div").style.background =
         "-webkit-linear-gradient(" + "#57ddff" + ", " + "#c058f3" + ")";
-      ele.nextElementSibling.style.display = "block";
 
-      completedToDos.add(e.currentTarget.closest(".todo-new"));
+      // Initiall when user creates a todo, the checkbox checked img is of display:none
+      // in order for it to be invisible, but as soon as the user clicks the checkbox,
+      // It should have the style display:block to be displayed in the UI.
+      checkBox.nextElementSibling.style.display = "block";
+
+      // completedToDos.add(e.currentTarget.closest(".todo-new"));
+      completedToDos.push(e.currentTarget.closest(".todo-new"));
+
+      // Removing the todo that is checked from the activeToDos array and display itemsLeft
+      // based on activeToDos.length property on the UI.
       activeToDos.forEach((todo, i) => {
         if (e.currentTarget.closest(".todo-new") === todo) {
           activeToDos.splice(i, 1);
+          currentLength = activeToDos.length;
           todoItemsLeft.textContent = `${activeToDos.length} items left`;
         }
       });
@@ -165,39 +135,57 @@ const completeToDo = () => {
 };
 
 const undoCompletedToDo = () => {
-  checkImgs.forEach((ele) => {
-    ele.addEventListener("click", (e) => {
-      const todoTextEle = ele.nextElementSibling;
-
+  checkImgs.forEach((checkImg) => {
+    checkImg.addEventListener("click", (e) => {
+      // Selecting nextElementSibling of checkImg element because wanting to undo the style done
+      // when previously checked on the <p> element which is the next sibling element of the checkImg
+      const todoTextEle = checkImg.nextElementSibling;
       todoTextEle.style.textDecoration = "none";
-
       todoTextEle.style.color = getComputedStyle(
         document.body
       ).getPropertyValue("--clr-text");
 
-      ele.style.display = "none";
+      // Once unchecked, the checkedImg element should no longer be displayed on the UI, that's why
+      // display = "none" is used
+      checkImg.style.display = "none";
 
-      const checkBox = ele.previousElementSibling.querySelector("div");
+      // CheckImg previousElementSibling is checkBox and using querySelector('div') on it gives
+      // the div inside it, the reason for selecting it, to change the linear-gradient it was given
+      // previously when checked to todo background color.
+      const checkBox = checkImg.previousElementSibling.querySelector("div");
       checkBox.style.background = getComputedStyle(
         document.body
       ).getPropertyValue("--clr-bg-todo");
 
-      const currentTodo = e.currentTarget.closest(".todo-new");
-      activeToDos.push(currentTodo);
-      todoItemsLeft.textContent = `${activeToDos.length} items left`;
+      completedToDos.forEach((todo, index) => {
+        if (todo === e.currentTarget.closest(".todo-new"))
+          completedToDos.splice(index, 1);
+      });
+
+      // Selecting currentTodo cause it needs to be added to the activeToDos array cause it was previously
+      // removed from it when the todo was checked
+      currentToDo = e.currentTarget.closest(".todo-new");
+      if (currentLength !== activeToDos.length) {
+        return;
+      } else {
+        activeToDos.push(currentToDo);
+        todoItemsLeft.textContent = `${activeToDos.length} items left`;
+      }
     });
   });
 };
 
-todoInput.addEventListener("keydown", (e) => {
-  if (e.key === "Enter") {
-    createTodo(e);
-    removeTodo();
-    completeToDo();
-    undoCompletedToDo();
-    e.target.value = "";
-  }
-});
+const editToDoBorderRadius = function (todos) {
+  todos.forEach((todo) => {
+    if (!todo.previousElementSibling) {
+      todo.style.borderTopLeftRadius = "5px";
+      todo.style.borderTopRightRadius = "5px";
+    } else {
+      todo.style.borderTopLeftRadius = "0px";
+      todo.style.borderTopRightRadius = "0px";
+    }
+  });
+};
 
 showAllToDos.addEventListener("click", (e) => {
   showAllToDos.style.color = "hsl(220, 98%, 61%)";
@@ -245,7 +233,7 @@ showCompletedToDos.addEventListener("click", (e) => {
     document.body
   ).getPropertyValue("--clr-text-status");
 
-  if (completedToDos.size === 0) return;
+  if (completedToDos.length === 0) return;
 
   allToDos.forEach((ele) => {
     ele.style.display = "none";
@@ -259,5 +247,72 @@ showCompletedToDos.addEventListener("click", (e) => {
 clearCompletedToDos.addEventListener("click", (e) => {
   completedToDos.forEach((ele) => {
     ele.remove();
+    arrToDos.forEach((todo, index) => {
+      if (todo === ele) {
+        arrToDos.splice(index, 1);
+      }
+    });
   });
 });
+
+// DRAG AND DROP FUNCTIONALITY
+const dragStart = function () {
+  arrToDos.forEach((ele, index) => {
+    if (this === ele) {
+      fromToDoIndex = index;
+    }
+  });
+};
+
+const dragEnter = function () {
+  this.classList.add("todo-new--over");
+};
+
+const dragLeave = function () {
+  this.classList.remove("todo-new--over");
+};
+
+const dragDrop = function () {
+  arrToDos.forEach((ele, index) => {
+    if (this === ele) {
+      toToDoIndex = index;
+    }
+  });
+
+  swapItems(fromToDoIndex, toToDoIndex);
+  this.classList.remove("todo-new--over");
+};
+
+const swapItems = function (from, to) {
+  const fromToDo = arrToDos[from];
+  const toToDo = arrToDos[to];
+
+  arrToDos[from] = toToDo;
+  arrToDos[to] = fromToDo;
+
+  reordering();
+};
+
+const reordering = function () {
+  newToDos.forEach((ele) => {
+    ele.remove();
+  });
+  arrToDos.forEach((ele) => {
+    todoNewContainer.insertAdjacentElement("afterbegin", ele);
+  });
+  editToDoBorderRadius(newToDos);
+};
+
+const dragOver = function (event) {
+  event.preventDefault();
+};
+
+const dragAndDrop = function () {
+  newToDos.forEach((ele) => {
+    ele.addEventListener("dragstart", dragStart);
+    ele.addEventListener("dragover", dragOver);
+    ele.addEventListener("drop", dragDrop);
+    ele.addEventListener("dragenter", dragEnter);
+    ele.addEventListener("dragleave", dragLeave);
+  });
+};

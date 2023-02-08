@@ -130,11 +130,13 @@ var showActiveToDos = document.querySelector(".todo-show-active");
 var showCompletedToDos = document.querySelector(".todo-show-completed");
 var clearCompletedToDos = document.querySelector(".todo-clear-completed");
 var num = 0;
+var currentLength = 0;
 var doneToDos;
 var checkImgs;
+var currentToDo;
 var allToDos = [];
 var activeToDos = [];
-var completedToDos = new Set();
+var completedToDos = [];
 
 // DRAG AND DROP VARIABLES
 var newToDos;
@@ -154,18 +156,173 @@ themeLightImg.addEventListener("click", function (e) {
   document.body.classList.remove("dark-theme");
 });
 
-//ToDo
+// APP TODO FUNCTIONALITY
+todoInput.addEventListener("keydown", function (e) {
+  if (e.key === "Enter" && e.currentTarget.value.trim() === "") return;else if (e.key === "Enter") {
+    createTodo(e);
+    removeTodo();
+    completeToDo();
+    undoCompletedToDo();
+    e.target.value = "";
+  }
+});
 var createTodo = function createTodo(event) {
   var newTodo = "<div class=\"todo-new\" draggable=\"true\">\n                    <div class=\"todo-new--check\">\n                      <div></div>\n                    </div>\n                    <span class=\"todo-new--check-img\"></span>\n                    <p class=\"todo-new--text\">".concat(event.target.value, "</p>\n                    <span class=\"todo-new--img\"\n                  </div>");
   todoNewContainer.insertAdjacentHTML("afterbegin", newTodo);
   checkImgs = document.querySelectorAll(".todo-new--check-img");
   newToDos = document.querySelectorAll(".todo-new");
-  arrToDos.push(todoNewContainer.firstChild);
   allToDos.push(todoNewContainer.firstChild);
   activeToDos.push(todoNewContainer.firstChild);
+  editToDoBorderRadius(newToDos);
   todoItemsLeft.textContent = "".concat(activeToDos.length, " items left");
+
+  // FOR DRAG AND DROP
+  arrToDos.push(todoNewContainer.firstChild);
   dragAndDrop();
 };
+var removeTodo = function removeTodo() {
+  var cancelTodoArray = document.querySelectorAll(".todo-new--img");
+  cancelTodoArray.forEach(function (ele) {
+    ele.addEventListener("click", function (e) {
+      ele.closest(".todo-new").remove();
+      allToDos.forEach(function (todo, i) {
+        if (e.currentTarget.closest(".todo-new") === todo) {
+          allToDos.splice(i, 1);
+        }
+      });
+      activeToDos.forEach(function (todo, i) {
+        if (e.currentTarget.closest(".todo-new") === todo) {
+          activeToDos.splice(i, 1);
+          todoItemsLeft.textContent = "".concat(activeToDos.length, " items left");
+        }
+      });
+      arrToDos.forEach(function (todo, index) {
+        if (todo === e.currentTarget.closest(".todo-new")) {
+          arrToDos.splice(index, 1);
+        }
+      });
+    });
+  });
+};
+var completeToDo = function completeToDo() {
+  doneToDos = document.querySelectorAll(".todo-new--check");
+  doneToDos.forEach(function (checkBox) {
+    checkBox.addEventListener("click", function (e) {
+      // The reason im selecting checkbox Element nextElementSiblings nextElement is because of
+      // wanting to style the <p> element of the todo
+      var todoTextEle = checkBox.nextElementSibling.nextElementSibling;
+      todoTextEle.style.textDecoration = "line-through";
+      todoTextEle.style.color = getComputedStyle(document.body).getPropertyValue("--clr-text-footer");
+      checkBox.querySelector("div").style.background = "-webkit-linear-gradient(" + "#57ddff" + ", " + "#c058f3" + ")";
+
+      // Initiall when user creates a todo, the checkbox checked img is of display:none
+      // in order for it to be invisible, but as soon as the user clicks the checkbox,
+      // It should have the style display:block to be displayed in the UI.
+      checkBox.nextElementSibling.style.display = "block";
+
+      // completedToDos.add(e.currentTarget.closest(".todo-new"));
+      completedToDos.push(e.currentTarget.closest(".todo-new"));
+
+      // Removing the todo that is checked from the activeToDos array and display itemsLeft
+      // based on activeToDos.length property on the UI.
+      activeToDos.forEach(function (todo, i) {
+        if (e.currentTarget.closest(".todo-new") === todo) {
+          activeToDos.splice(i, 1);
+          currentLength = activeToDos.length;
+          todoItemsLeft.textContent = "".concat(activeToDos.length, " items left");
+        }
+      });
+    });
+  });
+};
+var undoCompletedToDo = function undoCompletedToDo() {
+  checkImgs.forEach(function (checkImg) {
+    checkImg.addEventListener("click", function (e) {
+      // Selecting nextElementSibling of checkImg element because wanting to undo the style done
+      // when previously checked on the <p> element which is the next sibling element of the checkImg
+      var todoTextEle = checkImg.nextElementSibling;
+      todoTextEle.style.textDecoration = "none";
+      todoTextEle.style.color = getComputedStyle(document.body).getPropertyValue("--clr-text");
+
+      // Once unchecked, the checkedImg element should no longer be displayed on the UI, that's why
+      // display = "none" is used
+      checkImg.style.display = "none";
+
+      // CheckImg previousElementSibling is checkBox and using querySelector('div') on it gives
+      // the div inside it, the reason for selecting it, to change the linear-gradient it was given
+      // previously when checked to todo background color.
+      var checkBox = checkImg.previousElementSibling.querySelector("div");
+      checkBox.style.background = getComputedStyle(document.body).getPropertyValue("--clr-bg-todo");
+      completedToDos.forEach(function (todo, index) {
+        if (todo === e.currentTarget.closest(".todo-new")) completedToDos.splice(index, 1);
+      });
+
+      // Selecting currentTodo cause it needs to be added to the activeToDos array cause it was previously
+      // removed from it when the todo was checked
+      currentToDo = e.currentTarget.closest(".todo-new");
+      if (currentLength !== activeToDos.length) {
+        return;
+      } else {
+        activeToDos.push(currentToDo);
+        todoItemsLeft.textContent = "".concat(activeToDos.length, " items left");
+      }
+    });
+  });
+};
+var editToDoBorderRadius = function editToDoBorderRadius(todos) {
+  todos.forEach(function (todo) {
+    if (!todo.previousElementSibling) {
+      todo.style.borderTopLeftRadius = "5px";
+      todo.style.borderTopRightRadius = "5px";
+    } else {
+      todo.style.borderTopLeftRadius = "0px";
+      todo.style.borderTopRightRadius = "0px";
+    }
+  });
+};
+showAllToDos.addEventListener("click", function (e) {
+  showAllToDos.style.color = "hsl(220, 98%, 61%)";
+  allToDos.forEach(function (ele) {
+    ele.style.display = "block";
+  });
+  showCompletedToDos.style.color = getComputedStyle(document.body).getPropertyValue("--clr-text-status");
+  showActiveToDos.style.color = getComputedStyle(document.body).getPropertyValue("--clr-text-status");
+});
+showActiveToDos.addEventListener("click", function (e) {
+  showActiveToDos.style.color = "hsl(220, 98%, 61%)";
+  showAllToDos.style.color = getComputedStyle(document.body).getPropertyValue("--clr-text-status");
+  showCompletedToDos.style.color = getComputedStyle(document.body).getPropertyValue("--clr-text-status");
+  allToDos.forEach(function (ele) {
+    ele.style.display = "none";
+  });
+  activeToDos.forEach(function (ele) {
+    ele.style.display = "block";
+  });
+});
+showCompletedToDos.addEventListener("click", function (e) {
+  showCompletedToDos.style.color = "hsl(220, 98%, 61%)";
+  showAllToDos.style.color = getComputedStyle(document.body).getPropertyValue("--clr-text-status");
+  showActiveToDos.style.color = getComputedStyle(document.body).getPropertyValue("--clr-text-status");
+  if (completedToDos.length === 0) return;
+  allToDos.forEach(function (ele) {
+    ele.style.display = "none";
+  });
+  completedToDos.forEach(function (ele) {
+    ele.style.display = "block";
+  });
+});
+clearCompletedToDos.addEventListener("click", function (e) {
+  completedToDos.forEach(function (ele) {
+    ele.remove();
+    arrToDos.forEach(function (todo, index) {
+      if (todo === ele) {
+        arrToDos.splice(index, 1);
+      }
+    });
+  });
+});
+
+// DRAG AND DROP FUNCTIONALITY
 var dragStart = function dragStart() {
   var _this = this;
   arrToDos.forEach(function (ele, index) {
@@ -204,6 +361,7 @@ var reordering = function reordering() {
   arrToDos.forEach(function (ele) {
     todoNewContainer.insertAdjacentElement("afterbegin", ele);
   });
+  editToDoBorderRadius(newToDos);
 };
 var dragOver = function dragOver(event) {
   event.preventDefault();
@@ -217,104 +375,6 @@ var dragAndDrop = function dragAndDrop() {
     ele.addEventListener("dragleave", dragLeave);
   });
 };
-var removeTodo = function removeTodo() {
-  var cancelTodoArray = document.querySelectorAll(".todo-new--img");
-  cancelTodoArray.forEach(function (ele) {
-    ele.addEventListener("click", function (e) {
-      ele.closest(".todo-new").remove();
-      allToDos.forEach(function (todo, i) {
-        if (e.currentTarget.closest(".todo-new") === todo) {
-          allToDos.splice(i, 1);
-        }
-      });
-      activeToDos.forEach(function (todo, i) {
-        if (e.currentTarget.closest(".todo-new") === todo) {
-          activeToDos.splice(i, 1);
-          todoItemsLeft.textContent = "".concat(activeToDos.length, " items left");
-        }
-      });
-    });
-  });
-};
-var completeToDo = function completeToDo() {
-  doneToDos = document.querySelectorAll(".todo-new--check");
-  doneToDos.forEach(function (ele) {
-    ele.addEventListener("click", function (e) {
-      var todoTextEle = ele.nextElementSibling.nextElementSibling;
-      todoTextEle.style.textDecoration = "line-through";
-      todoTextEle.style.color = getComputedStyle(document.body).getPropertyValue("--clr-text-footer");
-      ele.querySelector("div").style.background = "-webkit-linear-gradient(" + "#57ddff" + ", " + "#c058f3" + ")";
-      ele.nextElementSibling.style.display = "block";
-      completedToDos.add(e.currentTarget.closest(".todo-new"));
-      activeToDos.forEach(function (todo, i) {
-        if (e.currentTarget.closest(".todo-new") === todo) {
-          activeToDos.splice(i, 1);
-          todoItemsLeft.textContent = "".concat(activeToDos.length, " items left");
-        }
-      });
-    });
-  });
-};
-var undoCompletedToDo = function undoCompletedToDo() {
-  checkImgs.forEach(function (ele) {
-    ele.addEventListener("click", function (e) {
-      var todoTextEle = ele.nextElementSibling;
-      todoTextEle.style.textDecoration = "none";
-      todoTextEle.style.color = getComputedStyle(document.body).getPropertyValue("--clr-text");
-      ele.style.display = "none";
-      var checkBox = ele.previousElementSibling.querySelector("div");
-      checkBox.style.background = getComputedStyle(document.body).getPropertyValue("--clr-bg-todo");
-      var currentTodo = e.currentTarget.closest(".todo-new");
-      activeToDos.push(currentTodo);
-      todoItemsLeft.textContent = "".concat(activeToDos.length, " items left");
-    });
-  });
-};
-todoInput.addEventListener("keydown", function (e) {
-  if (e.key === "Enter") {
-    createTodo(e);
-    removeTodo();
-    completeToDo();
-    undoCompletedToDo();
-    e.target.value = "";
-  }
-});
-showAllToDos.addEventListener("click", function (e) {
-  showAllToDos.style.color = "hsl(220, 98%, 61%)";
-  allToDos.forEach(function (ele) {
-    ele.style.display = "block";
-  });
-  showCompletedToDos.style.color = getComputedStyle(document.body).getPropertyValue("--clr-text-status");
-  showActiveToDos.style.color = getComputedStyle(document.body).getPropertyValue("--clr-text-status");
-});
-showActiveToDos.addEventListener("click", function (e) {
-  showActiveToDos.style.color = "hsl(220, 98%, 61%)";
-  showAllToDos.style.color = getComputedStyle(document.body).getPropertyValue("--clr-text-status");
-  showCompletedToDos.style.color = getComputedStyle(document.body).getPropertyValue("--clr-text-status");
-  allToDos.forEach(function (ele) {
-    ele.style.display = "none";
-  });
-  activeToDos.forEach(function (ele) {
-    ele.style.display = "block";
-  });
-});
-showCompletedToDos.addEventListener("click", function (e) {
-  showCompletedToDos.style.color = "hsl(220, 98%, 61%)";
-  showAllToDos.style.color = getComputedStyle(document.body).getPropertyValue("--clr-text-status");
-  showActiveToDos.style.color = getComputedStyle(document.body).getPropertyValue("--clr-text-status");
-  if (completedToDos.size === 0) return;
-  allToDos.forEach(function (ele) {
-    ele.style.display = "none";
-  });
-  completedToDos.forEach(function (ele) {
-    ele.style.display = "block";
-  });
-});
-clearCompletedToDos.addEventListener("click", function (e) {
-  completedToDos.forEach(function (ele) {
-    ele.remove();
-  });
-});
 },{}],"../node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
@@ -340,7 +400,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "57376" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "58980" + '/');
   ws.onmessage = function (event) {
     checkedAssets = {};
     assetsToAccept = [];
